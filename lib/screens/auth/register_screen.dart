@@ -1,125 +1,239 @@
+import 'package:agrarixx/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import '../../models/user_model.dart';
-import 'login_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../services/auth_service.dart'; // pastikan ini ada
+import '../../models/user_model.dart';     // pastikan ini ada
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
 
-  String name = "";
-  String email = "";
-  String password = "";
-  String role = "user"; // atau "admin"
-
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  
   bool isLoading = false;
+  bool agreeTerms = false;
 
   void register() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => isLoading = true);
-      UserModel? user = await _authService.register(
-        name: name,
-        email: email,
-        password: password,
-        role: role,
+    if (!_formKey.currentState!.validate()) return;
+    if (!agreeTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must agree to Terms of Service')),
       );
+      return;
+    }
+    
+    setState(() => isLoading = true);
 
-      setState(() => isLoading = false);
+    UserModel? user = await _authService.register(
+      name: _usernameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      role: "user", // default role user
+    );
 
-      if (user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Register berhasil sebagai ${user.role}")),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Register gagal!")));
-      }
+    setState(() => isLoading = false);
+
+    if (user != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Register berhasil sebagai ${user.role}")),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Register gagal!")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Register")),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: Form(
                   key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextFormField(
-                        decoration: const InputDecoration(labelText: "Nama"),
-                        onChanged: (val) => name = val,
-                        validator:
-                            (val) =>
-                                val!.isEmpty ? "Nama tidak boleh kosong" : null,
-                      ),
-                      TextFormField(
-                        decoration: const InputDecoration(labelText: "Email"),
-                        onChanged: (val) => email = val,
-                        validator:
-                            (val) =>
-                                val!.isEmpty
-                                    ? "Email tidak boleh kosong"
-                                    : null,
-                      ),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: "Password",
+                      SizedBox(height: 40.h),
+                      Text(
+                        'Register your account now\nand Join with us!',
+                        style: TextStyle(
+                          color: const Color(0xFF121926),
+                          fontSize: 20.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          height: 1.40,
                         ),
-                        obscureText: true,
-                        onChanged: (val) => password = val,
-                        validator:
-                            (val) =>
-                                val!.length < 6 ? "Minimal 6 karakter" : null,
                       ),
-                      DropdownButtonFormField<String>(
-                        value: role,
-                        items: const [
-                          DropdownMenuItem(value: "user", child: Text("User")),
-                          // DropdownMenuItem(
-                          //   value: "admin",
-                          //   child: Text("Admin"),
-                          // ),
-                        ],
-                        onChanged: (val) => role = val!,
-                        decoration: const InputDecoration(labelText: "Role"),
+                      SizedBox(height: 20.h),
+                      _buildLabel('Username'),
+                      _buildTextField(controller: _usernameController, hint: 'Input your username here'),
+                      SizedBox(height: 20.h),
+                      _buildLabel('Email'),
+                      _buildTextField(controller: _emailController, hint: 'Ex : user@example.com', keyboardType: TextInputType.emailAddress),
+                      SizedBox(height: 20.h),
+                      _buildLabel('Password'),
+                      _buildTextField(controller: _passwordController, hint: 'Input your password here', isObscure: true),
+                      SizedBox(height: 20.h),
+                      _buildLabel('Confirm Password'),
+                      _buildTextField(controller: _confirmPasswordController, hint: 'Confirm your password', isObscure: true),
+                      SizedBox(height: 20.h),
+                      CheckboxListTile(
+                        value: agreeTerms,
+                        onChanged: (val) => setState(() => agreeTerms = val!),
+                        title: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'I Agree with the ',
+                                style: TextStyle(
+                                  color: const Color(0xFF121926),
+                                  fontSize: 12.sp,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'Terms of Service & Conditions',
+                                style: TextStyle(
+                                  color: const Color(0xFF013133),
+                                  fontSize: 12.sp,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: register,
-                        child: const Text("Register"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
+                      SizedBox(height: 32.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed: register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0A3D31),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.r),
                             ),
-                          );
-                        },
-                        child: const Text("Sudah punya akun? Login"),
+                          ),
+                          child: Text(
+                            'Register',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Already have an account? ',
+                            style: TextStyle(
+                              color: const Color(0xFF0F1728),
+                              fontSize: 12.sp,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              );
+                            },
+                            child: Text(
+                              'Login here',
+                              style: TextStyle(
+                                color: const Color(0xFF0A3D31),
+                                fontSize: 12.sp,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
+            ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Text(
+      label,
+      style: TextStyle(
+        color: const Color(0xFF121926),
+        fontSize: 14.sp,
+        fontFamily: 'Poppins',
+        fontWeight: FontWeight.w500,
+        height: 1.40,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    bool isObscure = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isObscure,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp),
+        fillColor: Colors.grey.shade100,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.r),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      ),
+      validator: (val) {
+        if (val == null || val.isEmpty) {
+          return 'This field cannot be empty';
+        }
+        if (controller == _confirmPasswordController && val != _passwordController.text) {
+          return 'Password confirmation does not match';
+        }
+        return null;
+      },
     );
   }
 }

@@ -44,6 +44,9 @@ dependencies:
   url_launcher: ^6.3.1
   provider: ^6.1.4
   uuid: ^4.5.1
+  flutter_screenutil: ^5.9.3
+  path_provider: ^2.1.5
+
   # firebase_core: ^3.13.0
   # firebase_auth: ^5.5.2
   # cloud_firestore: ^5.6.6
@@ -68,6 +71,26 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/images/landingPage1.png
+    - assets/images/landingPageLogo.png
+    - assets/images/landingPage2.png
+    - assets/images/landingPage3.png
+    - assets/images/profile.png
+    - assets/images/logoFix.png
+    - assets/images/direct.png
+    - assets/images/agrarix_logo.png
+    - assets/images/verified_course.png
+    - assets/images/comun_course.png
+    - assets/images/logo.png
+    - assets/images/Vector_pdf.png
+    - assets/logo/padi.png
+    - assets/logo/jagung.png
+    - assets/logo/singkong.png
+    - assets/logo/kentang.png
+    - assets/logo/bawang merah.png
+    - assets/logo/bawang putih.png
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
