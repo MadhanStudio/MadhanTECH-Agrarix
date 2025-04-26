@@ -1,5 +1,218 @@
+// import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import '../../models/user_model.dart';
+// import 'map_picker_screen.dart';
+
+// class UploadQuestScreen extends StatefulWidget {
+//   final UserModel user;
+
+//   const UploadQuestScreen({required this.user, Key? key}) : super(key: key);
+
+//   @override
+//   _UploadQuestScreenState createState() => _UploadQuestScreenState();
+// }
+
+// class _UploadQuestScreenState extends State<UploadQuestScreen> {
+//   final _formKey = GlobalKey<FormState>();
+
+//   final TextEditingController _lokasiController = TextEditingController();
+//   final TextEditingController _kontakController = TextEditingController();
+//   final TextEditingController _hargaController = TextEditingController();
+//   final TextEditingController _jumlahController = TextEditingController();
+
+//   String? selectedBarang;
+//   final List<String> barangList = [
+//     'Padi',
+//     'Jagung',
+//     'Singkong',
+//     'Kentang',
+//     'Bawang Merah',
+//     'Bawang Putih',
+//   ];
+
+//   void _showHppPopup() async {
+//     final snapshot =
+//         await FirebaseFirestore.instance.collection('hpp_barang').get();
+
+//     showDialog(
+//       context: context,
+//       builder: (_) {
+//         return AlertDialog(
+//           title: Text("Harga HPP Barang"),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children:
+//                 snapshot.docs.map((doc) {
+//                   return ListTile(
+//                     title: Text(doc.id),
+//                     trailing: Text("Rp ${doc['value']}"),
+//                   );
+//                 }).toList(),
+//           ),
+//           actions: [
+//             TextButton(
+//               onPressed: () => Navigator.pop(context),
+//               child: Text("Tutup"),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+
+//   Future<void> _uploadQuest() async {
+//     if (_formKey.currentState!.validate()) {
+//       // Parsing angka
+//       int? harga = int.tryParse(_hargaController.text.trim());
+//       int? jumlah = int.tryParse(_jumlahController.text.trim());
+
+//       if (harga == null || jumlah == null) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text("Harga dan jumlah harus berupa angka yang valid."),
+//           ),
+//         );
+//         return;
+//       }
+
+//       if (selectedBarang == null) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text("Silakan pilih barang terlebih dahulu.")),
+//         );
+//         return;
+//       }
+
+//       final data = {
+//         'lokasi': _lokasiController.text.trim(),
+//         'kontak': _kontakController.text.trim(),
+//         'harga': harga,
+//         'jumlah': jumlah,
+//         'barang': selectedBarang,
+//         'status': 'pending',
+//         'ownerId': widget.user.uid,
+//         'timestamp': Timestamp.now(),
+//       };
+
+//       try {
+//         await FirebaseFirestore.instance.collection('quests').add(data);
+//         ScaffoldMessenger.of(
+//           context,
+//         ).showSnackBar(SnackBar(content: Text('Quest berhasil diunggah!')));
+//         Navigator.pop(context);
+//       } catch (e) {
+//         print('Error: $e');
+//         ScaffoldMessenger.of(
+//           context,
+//         ).showSnackBar(SnackBar(content: Text('Gagal mengunggah quest.')));
+//       }
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Upload Quest")),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Form(
+//           key: _formKey,
+//           child: ListView(
+//             children: [
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     "Lihat Harga HPP:",
+//                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//                   ),
+//                   TextButton.icon(
+//                     onPressed: _showHppPopup,
+//                     icon: Icon(Icons.visibility),
+//                     label: Text("Lihat HPP"),
+//                   ),
+//                 ],
+//               ),
+//               DropdownButtonFormField<String>(
+//                 decoration: InputDecoration(
+//                   labelText: "Pilih Barang",
+//                   border: OutlineInputBorder(),
+//                 ),
+//                 value: selectedBarang,
+//                 items:
+//                     barangList.map((item) {
+//                       return DropdownMenuItem(value: item, child: Text(item));
+//                     }).toList(),
+//                 onChanged: (value) {
+//                   setState(() {
+//                     selectedBarang = value;
+//                   });
+//                 },
+//                 validator: (value) => value == null ? 'Pilih barang' : null,
+//               ),
+//               const SizedBox(height: 16),
+//               TextFormField(
+//                   controller: _lokasiController,
+//                   readOnly: true,
+//                   onTap: () async {
+//                     final result = await Navigator.push(
+//                       context,
+//                       MaterialPageRoute(builder: (_) => MapPickerScreen()),
+//                     );
+
+//                     if (result != null) {
+//                       setState(() {
+//                         _lokasiController.text = result['address'];
+//                         _lokasiLatLng = result['latLng'];
+//                       });
+//                     }
+//                   },
+//                   decoration: InputDecoration(labelText: 'Pilih Lokasi dari Peta'),
+//                   validator: (value) => value!.isEmpty ? 'Pilih lokasi' : null,
+//                 ),
+//               TextFormField(
+//                 controller: _kontakController,
+//                 decoration: InputDecoration(labelText: 'Kontak'),
+//                 validator:
+//                     (value) =>
+//                         value == null || value.isEmpty
+//                             ? 'Masukkan kontak'
+//                             : null,
+//               ),
+//               TextFormField(
+//                 controller: _hargaController,
+//                 decoration: InputDecoration(labelText: 'Harga yang Ditawarkan'),
+//                 keyboardType: TextInputType.number,
+//                 validator:
+//                     (value) =>
+//                         value == null || value.isEmpty
+//                             ? 'Masukkan harga'
+//                             : null,
+//               ),
+//               TextFormField(
+//                 controller: _jumlahController,
+//                 decoration: InputDecoration(labelText: 'Jumlah yang Dibeli'),
+//                 keyboardType: TextInputType.number,
+//                 validator:
+//                     (value) =>
+//                         value == null || value.isEmpty
+//                             ? 'Masukkan jumlah'
+//                             : null,
+//               ),
+//               const SizedBox(height: 20),
+//               ElevatedButton(
+//                 onPressed: _uploadQuest,
+//                 child: Text("Kirim Quest"),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart'; // Tambahkan ini
 import '../../models/user_model.dart';
 
 class UploadQuestScreen extends StatefulWidget {
@@ -13,12 +226,11 @@ class UploadQuestScreen extends StatefulWidget {
 
 class _UploadQuestScreenState extends State<UploadQuestScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  // final TextEditingController _akunController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _kontakController = TextEditingController();
   final TextEditingController _hargaController = TextEditingController();
   final TextEditingController _jumlahController = TextEditingController();
+
   String? selectedBarang;
   final List<String> barangList = [
     'Padi',
@@ -28,9 +240,9 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
     'Bawang Merah',
     'Bawang Putih',
   ];
+
   void _showHppPopup() async {
     final snapshot = await FirebaseFirestore.instance.collection('hpp_barang').get();
-
     showDialog(
       context: context,
       builder: (_) {
@@ -52,34 +264,87 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
       },
     );
   }
+
   Future<void> _uploadQuest() async {
     if (_formKey.currentState!.validate()) {
-      final data = {
-        // 'akun': _akunController.text.trim(),
-        'lokasi': _lokasiController.text.trim(),
-        'kontak': _kontakController.text.trim(),
-        'harga': int.parse(_hargaController.text.trim()),
-        'jumlah': int.parse(_jumlahController.text.trim()),
-        'barang': selectedBarang,
-        'status': 'pending',
-        'ownerId': widget.user.uid,
-        'timestamp': Timestamp.now(),
-      };
+      if (selectedBarang == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Pilih barang terlebih dahulu")),
+        );
+        return;
+      }
+
+      final inputHarga = int.parse(_hargaController.text.trim());
 
       try {
+        final hppSnapshot = await FirebaseFirestore.instance
+            .collection('hpp_barang')
+            .doc(selectedBarang)
+            .get();
+
+        if (hppSnapshot.exists) {
+          final hppValue = hppSnapshot.get('value');
+
+          if (inputHarga < hppValue) {
+            // Jika harga lebih rendah dari HPP, tampilkan popup
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text("Quest Ditolak"),
+                content: Text("Quest tidak disetujui secara otomatis karena HPP yang diinput kurang dari HPP yang ditentukan."),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("OK"),
+                  ),
+                ],
+              ),
+            );
+            return; // hentikan proses upload
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Data HPP untuk barang ini tidak ditemukan.")),
+          );
+          return;
+        }
+
+        final data = {
+          'nama': widget.user.name,
+          'lokasi': _lokasiController.text.trim(),
+          'kontak': _kontakController.text.trim(),
+          'harga': inputHarga,
+          'jumlah': int.parse(_jumlahController.text.trim()),
+          'barang': selectedBarang,
+          'status': 'pending',
+          'ownerId': widget.user.uid,
+          'timestamp': Timestamp.now(),
+        };
+
         await FirebaseFirestore.instance.collection('quests').add(data);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Quest berhasil diunggah!')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quest berhasil diunggah!')));
         Navigator.pop(context);
+
       } catch (e) {
         print('Error: $e');
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal mengunggah quest.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Terjadi kesalahan saat mengunggah quest.')));
       }
     }
   }
+
+
+  Future<void> _openGoogleMaps() async {
+    final Uri uri = Uri.parse("https://www.google.com/maps");
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tidak dapat membuka Google Maps')),
+      );
+    }
+  }
+
 
   Widget _buildHppInfo() {
     return FutureBuilder<DocumentSnapshot>(
@@ -136,15 +401,16 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
                 validator: (value) => value == null ? 'Pilih barang' : null,
               ),
               const SizedBox(height: 16),
-              // TextFormField(
-              //   controller: _akunController,
-              //   decoration: InputDecoration(labelText: 'Akun'),
-              //   validator: (value) => value!.isEmpty ? 'Masukkan akun' : null,
-              // ),
               TextFormField(
                 controller: _lokasiController,
-                decoration: InputDecoration(labelText: 'Lokasi'),
-                validator: (value) => value!.isEmpty ? 'Masukkan lokasi' : null,
+                decoration: InputDecoration(
+                  labelText: 'Link atau Nama Lokasi',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.map),
+                    onPressed: _openGoogleMaps,
+                  ),
+                ),
+                validator: (value) => value!.isEmpty ? 'Masukkan lokasi atau link Google Maps' : null,
               ),
               TextFormField(
                 controller: _kontakController,
@@ -159,7 +425,7 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
               ),
               TextFormField(
                 controller: _jumlahController,
-                decoration: InputDecoration(labelText: 'Jumlah yang Dibeli'),
+                decoration: InputDecoration(labelText: 'Jumlah yang Dibeli Dalam Kilogram'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Masukkan jumlah' : null,
               ),
