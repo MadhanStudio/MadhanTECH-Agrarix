@@ -58,18 +58,15 @@ class PostService {
     }).toList();
   }
 
-  // Mengupdate Post yang sudah ada
-  // Future<void> updatePost(PostModel post) async {
-  //   await _posts.doc(post.id).update(post.toMap());
-  // }
-
-  // Menghapus Post berdasarkan ID
   Future<void> deletePost(String postId) async {
     await _posts.doc(postId).delete();
   }
-  
+
   Future<void> updatePost(PostModel post) async {
-    await FirebaseFirestore.instance.collection('posts').doc(post.id).update(post.toMap());
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(post.id)
+        .update(post.toMap());
   }
 
   // Mengubah status suka / tidak suka pada Post

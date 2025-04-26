@@ -98,7 +98,9 @@ class HomeUser extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => ApprovedListQuestScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => ApprovedListQuestScreen(user: user),
+                  ),
                 );
               },
             ),

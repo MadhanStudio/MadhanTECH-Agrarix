@@ -357,8 +357,7 @@ class CoursePelatihanAhliScreen extends StatelessWidget {
     if (user.role == 'admin') return true;
     if (user.subscriptionStatus == 'active') {
       final now = DateTime.now();
-      if (user.subscriptionExpiry != null &&
-          user.subscriptionExpiry!.isAfter(now)) {
+      if (user.subscriptionExpiry != null && user.subscriptionExpiry!.isAfter(now)) {
         return true;
       }
     }
@@ -369,7 +368,10 @@ class CoursePelatihanAhliScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!_isUserSubscribed()) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Course Pelatihan Ahli')),
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: const Text('Course Pelatihan Ahli'),
+        ),
         body: const Center(
           child: Text(
             'Fitur ini hanya tersedia untuk pengguna yang sudah berlangganan.',
@@ -382,6 +384,7 @@ class CoursePelatihanAhliScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        // backgroundColor: const Color(0xFF053B3F),
         title: const Text('Course Pelatihan Ahli'),
         actions: [
           if (user.role == 'admin')
@@ -422,38 +425,65 @@ class CoursePelatihanAhliScreen extends StatelessWidget {
               final imageFile = imagePath != null ? File(imagePath) : null;
               final fileExists = imageFile?.existsSync() ?? false;
 
-              return ListTile(
-                leading: fileExists
-                    ? Image.file(imageFile!, width: 50, height: 50, fit: BoxFit.cover)
-                    : const Icon(Icons.image_not_supported, size: 50),
-                title: Text(data['title'] ?? 'Tanpa Judul'),
-                subtitle: Text(data['description'] ?? 'Tanpa Deskripsi'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CoursePelatihanDetailScreen(
-                        courseId: doc.id,
-                        courseData: data,
-                      ),
+              return Card(
+                color: const Color(0xFFFEEEDA),
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: fileExists
+                        ? Image.file(imageFile!, width: 60, height: 60, fit: BoxFit.cover)
+                        : Container(
+                            width: 60,
+                            height: 60,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image_not_supported, size: 30),
+                          ),
+                  ),
+                  title: Text(
+                    data['title'] ?? 'Tanpa Judul',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF053B3F),
                     ),
-                  );
-                },
-                trailing: user.role == 'admin'
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.orange),
-                            onPressed: () => _editCourse(context, doc),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteCourse(doc.id),
-                          ),
-                        ],
-                      )
-                    : null,
+                  ),
+                  subtitle: Text(
+                    data['description'] ?? 'Tanpa Deskripsi',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black87),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CoursePelatihanDetailScreen(
+                          courseId: doc.id,
+                          courseData: data,
+                        ),
+                      ),
+                    );
+                  },
+                  trailing: user.role == 'admin'
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.orange),
+                              onPressed: () => _editCourse(context, doc),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteCourse(doc.id),
+                            ),
+                          ],
+                        )
+                      : null,
+                ),
               );
             },
           );
