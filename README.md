@@ -1,8 +1,7 @@
-# agrarixx
+# Agrarix
 
-A new Flutter project.
-
-## Getting Started
+Agrarix adalah sebuah aplikasi android untuk mengatasi kemiskinan petani melalui mempermudah akses informasi kepada petani
+## 
 
 This project is a starting point for a Flutter application.
 
