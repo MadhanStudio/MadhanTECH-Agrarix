@@ -92,10 +92,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         value: role,
                         items: const [
                           DropdownMenuItem(value: "user", child: Text("User")),
-                          DropdownMenuItem(
-                            value: "admin",
-                            child: Text("Admin"),
-                          ),
+                          // DropdownMenuItem(
+                          //   value: "admin",
+                          //   child: Text("Admin"),
+                          // ),
                         ],
                         onChanged: (val) => role = val!,
                         decoration: const InputDecoration(labelText: "Role"),

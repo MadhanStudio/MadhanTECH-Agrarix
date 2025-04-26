@@ -142,11 +142,12 @@ class QuestDetailScreen extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatDetailScreen(
-            currentUser: currentUserModel,
-            targetUser: targetUserModel,
-            initialMessage: autoMessage, // Menyertakan pesan otomatis
-          ),
+          builder:
+              (_) => ChatDetailScreen(
+                currentUser: currentUserModel,
+                targetUser: targetUserModel,
+                initialMessage: autoMessage, // Menyertakan pesan otomatis
+              ),
         ),
       );
     } catch (e) {
@@ -179,6 +180,7 @@ class QuestDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Text("Dari: ${questData['akun']}"),
+            Text("Nama: ${questData['nama']}"),
             Text("Barang: ${questData['barang']}"),
             Text("Lokasi: ${questData['lokasi']}"),
             Text("Kontak: ${questData['kontak']}"),
