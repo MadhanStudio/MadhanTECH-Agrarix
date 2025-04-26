@@ -142,11 +142,12 @@ class QuestDetailScreen extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatDetailScreen(
-            currentUser: currentUserModel,
-            targetUser: targetUserModel,
-            initialMessage: autoMessage, // Menyertakan pesan otomatis
-          ),
+          builder:
+              (_) => ChatDetailScreen(
+                currentUser: currentUserModel,
+                targetUser: targetUserModel,
+                initialMessage: autoMessage, // Menyertakan pesan otomatis
+              ),
         ),
       );
     } catch (e) {
@@ -166,7 +167,7 @@ class QuestDetailScreen extends StatelessWidget {
       'diterimaOleh': user.uid,
     });
 
-    Navigator.pop(context); // Kembali ke list
+    // Navigator.pop(context); // Kembali ke list
   }
 
   @override
@@ -179,6 +180,7 @@ class QuestDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Text("Dari: ${questData['akun']}"),
+            Text("Nama: ${questData['nama']}"),
             Text("Barang: ${questData['barang']}"),
             Text("Lokasi: ${questData['lokasi']}"),
             Text("Kontak: ${questData['kontak']}"),
@@ -188,15 +190,12 @@ class QuestDetailScreen extends StatelessWidget {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => _navigateToChat(context),
-                  child: const Text("Chat"),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () => _acceptQuest(context),
+                  onPressed: () async {
+                    _acceptQuest(context);
+                    _navigateToChat(context);
+                  },
                   child: const Text("Terima"),
                 ),
-                const SizedBox(width: 16),
               ],
             ),
           ],

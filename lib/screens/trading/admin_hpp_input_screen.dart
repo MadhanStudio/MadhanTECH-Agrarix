@@ -110,7 +110,8 @@ class _AdminHppInputScreenState extends State<AdminHppInputScreen> {
   }
 
   Future<void> _loadExistingHpp() async {
-    final snapshot = await FirebaseFirestore.instance.collection('hpp_barang').get();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('hpp_barang').get();
     for (var doc in snapshot.docs) {
       _controllers[doc.id]?.text = doc['value'].toString();
     }
@@ -122,16 +123,16 @@ class _AdminHppInputScreenState extends State<AdminHppInputScreen> {
     for (var barang in barangList) {
       final val = double.tryParse(_controllers[barang]!.text);
       if (val != null) {
-        await FirebaseFirestore.instance.collection('hpp_barang').doc(barang).set({
-          'value': val,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        await FirebaseFirestore.instance
+            .collection('hpp_barang')
+            .doc(barang)
+            .set({'value': val, 'timestamp': FieldValue.serverTimestamp()});
       }
     }
     setState(() => _loading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("HPP berhasil disimpan")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("HPP berhasil disimpan")));
   }
 
   @override
@@ -149,7 +150,7 @@ class _AdminHppInputScreenState extends State<AdminHppInputScreen> {
                   controller: _controllers[barang],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: "$barang (Rp)",
+                    labelText: "$barang (Rp) dalam satuan Kilogram",
                     border: OutlineInputBorder(),
                   ),
                 ),
