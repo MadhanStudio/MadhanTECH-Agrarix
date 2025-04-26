@@ -167,7 +167,7 @@ class QuestDetailScreen extends StatelessWidget {
       'diterimaOleh': user.uid,
     });
 
-    Navigator.pop(context); // Kembali ke list
+    // Navigator.pop(context); // Kembali ke list
   }
 
   @override
@@ -190,15 +190,12 @@ class QuestDetailScreen extends StatelessWidget {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => _navigateToChat(context),
-                  child: const Text("Chat"),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () => _acceptQuest(context),
+                  onPressed: () async {
+                    _acceptQuest(context);
+                    _navigateToChat(context);
+                  },
                   child: const Text("Terima"),
                 ),
-                const SizedBox(width: 16),
               ],
             ),
           ],
