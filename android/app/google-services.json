@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "791442406366",
+    "project_id": "madhantech-675b2",
+    "storage_bucket": "madhantech-675b2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791442406366:android:a1372f6554222b30d8fb4f",
+        "android_client_info": {
+          "package_name": "com.example.agrarixx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtx5V1O5v-d2fC51By2u9uK00aitudLvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
