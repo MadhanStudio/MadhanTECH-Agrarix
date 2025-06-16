@@ -1,12 +1,8 @@
 import 'package:agrarixx/models/user_model.dart';
-import 'package:agrarixx/screens/home/home_screen.dart';
 import 'package:agrarixx/screens/profile/profile_screen.dart';
 import 'package:agrarixx/screens/social/social_screen.dart';
-import 'package:agrarixx/screens/trading/my_quest_screen.dart';
-import 'package:agrarixx/screens/trading/quest_list_by_barang.dart';
 import 'package:agrarixx/screens/trading/approved_quest_list_screen.dart'; // Add this import
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:agrarixx/screens/course/course_screen.dart';
 
 class Navbar extends StatefulWidget {

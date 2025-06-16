@@ -1,95 +1,3 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:url_launcher/url_launcher.dart';
-// import 'quest_detail_screen.dart';
-
-// class QuestListByBarang extends StatelessWidget {
-//   final String barangLabel;
-
-//   const QuestListByBarang({required this.barangLabel});
-
-//   // Function untuk membuka URL
-//   void _launchURL(String url) async {
-//     if (await canLaunch(url)) {
-//       await launch(url);
-//     } else {
-//       throw 'Tidak bisa membuka URL: $url';
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final currentUser = FirebaseAuth.instance.currentUser;
-
-//     return StreamBuilder<QuerySnapshot>(
-//       stream:
-//           FirebaseFirestore.instance
-//               .collection('quests')
-//               .where('status', isEqualTo: 'approved')
-//               .where('barang', isEqualTo: barangLabel)
-//               .snapshots(),
-//       builder: (context, snapshot) {
-//         if (!snapshot.hasData)
-//           return Center(child: CircularProgressIndicator());
-
-//         final docs = snapshot.data!.docs;
-
-//         // Filter untuk tidak menampilkan quest milik sendiri
-//         final filteredDocs =
-//             docs.where((doc) {
-//               return doc['ownerId'] != currentUser!.uid;
-//             }).toList();
-
-//         if (filteredDocs.isEmpty) {
-//           return Center(child: Text("Belum ada quest untuk $barangLabel"));
-//         }
-
-//         return ListView.builder(
-//           itemCount: filteredDocs.length,
-//           itemBuilder: (context, index) {
-//             final data = filteredDocs[index].data() as Map<String, dynamic>;
-//             final id = filteredDocs[index].id;
-
-//             return ListTile(
-//               title: Text('${data['nama']}'), // Misal title-nya barang
-//               // Removed redundant Text widget causing the error
-//               subtitle: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   GestureDetector(
-//                     onTap: () {
-//                       _launchURL(data['lokasi']);
-//                     },
-//                     child: Text(
-//                       'Lihat Lokasi',
-//                       style: TextStyle(
-//                         color: Colors.blue,
-//                         decoration: TextDecoration.underline,
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(height: 4),
-//                   Text('Kontak: ${data['kontak']}'),
-//                   Text('Tekan untuk detail lebih lanjut'),
-//                 ],
-//               ),
-//               onTap: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder:
-//                         (_) => QuestDetailScreen(questId: id, questData: data),
-//                   ),
-//                 );
-//               },
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
-// }
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -101,19 +9,26 @@ class QuestListByBarang extends StatelessWidget {
 
   const QuestListByBarang({required this.barangLabel});
 
-  // Function untuk membuka URL
-  void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+  // Function to open URL, updated for current url_launcher API
+  Future<void> _launchURL(BuildContext context, String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      throw 'Tidak bisa membuka URL: $url';
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak bisa membuka URL: $urlString')),
+        );
+      }
+      // Optionally, rethrow or log the error for debugging
+      // throw 'Tidak bisa membuka URL: $urlString';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
-
+    final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+ 
     return Scaffold(
       body: Container(
         color: const Color(0xFF053B3F), // Dark teal background
@@ -261,9 +176,13 @@ class QuestListByBarang extends StatelessWidget {
 
                           final docs = snapshot.data!.docs;
                           final filteredDocs =
-                              docs.where((doc) {
-                                return doc['ownerId'] != currentUser!.uid;
-                              }).toList();
+                            docs.where((doc) {
+                              final ownerId = doc['ownerId'] as String?;
+                              if (currentUserId == null) {
+                                return true; // If no user logged in, show all quests
+                              }
+                              return ownerId != currentUserId;
+                            }).toList();
 
                           if (filteredDocs.isEmpty) {
                             return Center(
@@ -283,9 +202,9 @@ class QuestListByBarang extends StatelessWidget {
 
                               return CommodityOfferCard(
                                 username: data['nama'] ?? 'Pengguna',
-                                location: 'lokasi',
+                                location: 'Lihat Lokasi', // User-friendly text
                                 price: 'Rp. ${data['harga']}/kg',
-                                amount: '${data['jumlah']} kg',
+                                amount: '${data['jumlah'] ?? 0} kg', // Handle potential null for jumlah
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -299,7 +218,16 @@ class QuestListByBarang extends StatelessWidget {
                                   );
                                 },
                                 onLocationTap: () {
-                                  _launchURL(data['lokasi']);
+                                  final String? lokasiUrl = data['lokasi'] as String?;
+                                  if (lokasiUrl != null && lokasiUrl.isNotEmpty) {
+                                    _launchURL(context, lokasiUrl);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Detail lokasi tidak tersedia.'),
+                                      ),
+                                    );
+                                  }
                                 },
                               );
                             },

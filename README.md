@@ -5,11 +5,8 @@ Agrarix adalah sebuah aplikasi komunitas petani dengan fitur untuk dapat melihat
 test@gmail.com
 test12345
 
-test5@gmail.com
-test12345
-
-raph@gmail.com
-raph12345
-
 admin@gmail.com
 admin12345 
+
+rimuru@gmail.com
+rimu12345

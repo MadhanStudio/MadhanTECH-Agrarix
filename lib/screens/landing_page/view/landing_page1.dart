@@ -2,14 +2,14 @@ import 'package:agrarixx/screens/landing_page/view/landing_page2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class landingPage1 extends StatefulWidget {
-  const landingPage1({super.key});
+class LandingPage1 extends StatefulWidget {
+  const LandingPage1({super.key});
 
   @override
-  State<landingPage1> createState() => _landingPage1State();
+  State<LandingPage1> createState() => _LandingPage1State();
 }
 
-class _landingPage1State extends State<landingPage1> {
+class _LandingPage1State extends State<LandingPage1> {
   bool _isScreenUtilInit = false;
 
   @override
@@ -21,18 +21,23 @@ class _landingPage1State extends State<landingPage1> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: null,
-        backgroundColor: Color(0xFF013133),
+    return Scaffold(
+        backgroundColor: const Color(0xFF013133),
         body: Container(
           child: SafeArea(
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Image.asset('assets/images/landingPageLogo.png')],
+                  children: [
+                    Image.asset(
+                      'assets/images/landingPageLogo.png',
+                      width: 100.0, // Set static width
+                      height: 100.0, // Set static height
+                    )
+                  ],
                 ),
                 Expanded(
                   child: Stack(
@@ -65,7 +70,7 @@ class _landingPage1State extends State<landingPage1> {
                                           context,
                                           animation,
                                           secondaryAnimation,
-                                        ) => const landingPage2(),
+                                        ) => const LandingPage2(),
                                     transitionsBuilder: (
                                       context,
                                       animation,
@@ -163,7 +168,6 @@ class _landingPage1State extends State<landingPage1> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

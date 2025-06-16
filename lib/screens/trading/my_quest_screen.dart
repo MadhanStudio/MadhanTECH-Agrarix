@@ -29,9 +29,9 @@ class MyQuestScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Quest Saya"),
+          title: Text("Permintaan Saya"),
           bottom: TabBar(
-            tabs: [Tab(text: "Quest Dibuat"), Tab(text: "Quest Diterima")],
+            tabs: [Tab(text: "Permintaan Dibuat"), Tab(text: "Permintaan Diterima")],
           ),
         ),
         body: TabBarView(
@@ -48,7 +48,7 @@ class MyQuestScreen extends StatelessWidget {
 
                 final createdQuests = snapshot.data!.docs;
                 if (createdQuests.isEmpty)
-                  return Center(child: Text("Belum ada quest yang kamu buat."));
+                  return Center(child: Text("Belum ada permintaan yang kamu buat."));
 
                 return ListView.builder(
                   itemCount: createdQuests.length,
@@ -101,7 +101,7 @@ class MyQuestScreen extends StatelessWidget {
                                 ? null
                                 : ElevatedButton(
                                   onPressed: () => _markAsFinished(doc.id),
-                                  child: Text("Quest Telah Selesai"),
+                                  child: Text("Permintaan Telah Selesai"),
                                 ),
                       ),
                     );
@@ -125,7 +125,7 @@ class MyQuestScreen extends StatelessWidget {
                 final receivedQuests = snapshot.data!.docs;
                 if (receivedQuests.isEmpty)
                   return Center(
-                    child: Text("Belum ada quest yang kamu terima."),
+                    child: Text("Belum ada Permintaan yang kamu terima."),
                   );
 
                 return ListView.builder(

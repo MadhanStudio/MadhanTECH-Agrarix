@@ -222,7 +222,7 @@ class _SocialScreenState extends State<SocialScreen> with SingleTickerProviderSt
       //   borderRadius: BorderRadius.circular(8),  // Sudut agak bulat
       // ),
       padding: const EdgeInsets.all(8),
-      child: Row(
+      child: const Row(
         children: const [
           Icon(Icons.campaign, color: Colors.orange),
           SizedBox(width: 8),

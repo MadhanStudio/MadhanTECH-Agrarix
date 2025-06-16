@@ -41,7 +41,7 @@ class AdminVerifikasiQuestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Verifikasi Quest (Admin)")),
+      appBar: AppBar(title: Text("Verifikasi Permintaan (Admin)")),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('quests')
@@ -53,7 +53,7 @@ class AdminVerifikasiQuestScreen extends StatelessWidget {
 
           final quests = snapshot.data!.docs;
 
-          if (quests.isEmpty) return Center(child: Text("Tidak ada quest pending."));
+          if (quests.isEmpty) return Center(child: Text("Tidak ada Permintaan pending."));
 
           return ListView.builder(
             itemCount: quests.length,
@@ -64,7 +64,7 @@ class AdminVerifikasiQuestScreen extends StatelessWidget {
               return Card(
                 margin: const EdgeInsets.all(8),
                 child: ListTile(
-                  title: Text(data['nama']),
+                  // title: Text(data['nama']),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

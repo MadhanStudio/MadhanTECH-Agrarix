@@ -3,14 +3,14 @@ import 'package:agrarixx/screens/auth/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class landingPage3 extends StatefulWidget {
-  const landingPage3({super.key});
+class LandingPage3 extends StatefulWidget {
+  const LandingPage3({super.key});
 
   @override
-  State<landingPage3> createState() => _landingPage3State();
+  State<LandingPage3> createState() => _LandingPage3State();
 }
 
-class _landingPage3State extends State<landingPage3> {
+class _LandingPage3State extends State<LandingPage3> {
   bool _isScreenUtilInit = false;
 
   @override
@@ -33,8 +33,13 @@ class _landingPage3State extends State<landingPage3> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Image.asset('assets/images/landingPageLogo.png')],
-                ),
+                  children: [
+                    Image.asset(
+                      'assets/images/landingPageLogo.png',
+                      width: 100.0, // Set static width
+                      height: 100.0, // Set static height
+                    )
+],                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -195,7 +200,7 @@ class _landingPage3State extends State<landingPage3> {
                       topRight: Radius.circular(140.r),
                     ),
                     child: Image.asset(
-                      'assets/images/landingPage3.png',
+                      'assets/images/LandingPage3.png',
                       width: double.infinity,
                       height: 280.h,
                       fit: BoxFit.cover,

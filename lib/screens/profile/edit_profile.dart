@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:agrarixx/screens/auth/login_screen.dart';
-import 'package:agrarixx/screens/profile/edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/user_model.dart';

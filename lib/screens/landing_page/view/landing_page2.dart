@@ -2,14 +2,14 @@ import 'package:agrarixx/screens/landing_page/view/landing_page3.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class landingPage2 extends StatefulWidget {
-  const landingPage2({super.key});
+class LandingPage2 extends StatefulWidget {
+  const LandingPage2({super.key});
 
   @override
-  State<landingPage2> createState() => _landingPage2State();
+  State<LandingPage2> createState() => _LandingPage2State();
 }
 
-class _landingPage2State extends State<landingPage2> {
+class _LandingPage2State extends State<LandingPage2> {
   bool _isScreenUtilInit = false;
 
   @override
@@ -32,7 +32,13 @@ class _landingPage2State extends State<landingPage2> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Image.asset('assets/images/landingPageLogo.png')],
+                  children: [
+                    Image.asset(
+                      'assets/images/landingPageLogo.png',
+                      width: 100.0, // Set static width
+                      height: 100.0, // Set static height
+                    )
+],
                 ),
                 Expanded(
                   child: Stack(
@@ -66,7 +72,7 @@ class _landingPage2State extends State<landingPage2> {
                                           context,
                                           animation,
                                           secondaryAnimation,
-                                        ) => const landingPage3(),
+                                        ) => const LandingPage3(),
                                     transitionsBuilder: (
                                       context,
                                       animation,

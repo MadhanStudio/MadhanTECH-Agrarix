@@ -55,25 +55,40 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
 
   Future<void> _uploadQuest() async {
     if (_formKey.currentState!.validate()) {
+      // Safely parse integers
+      final int? harga = int.tryParse(_hargaController.text.trim());
+      final int? jumlah = int.tryParse(_jumlahController.text.trim());
+
+      if (harga == null || jumlah == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Harga dan Jumlah harus berupa angka yang valid.')));
+        }
+        return;
+      }
+
       final data = {
-        'ownerId': widget.user.name,
+        'nama': widget.user.name, // User's display name
         'lokasi': _lokasiController.text.trim(),
         'kontak': _kontakController.text.trim(),
-        'harga': int.parse(_hargaController.text.trim()),
-        'jumlah': int.parse(_jumlahController.text.trim()),
+        'harga': harga,
+        'jumlah': jumlah,
         'barang': selectedBarang,
         'status': 'pending',
-        'ownerId': widget.user.uid,
+        'ownerId': widget.user.uid, // User's unique ID
         'timestamp': Timestamp.now(),
       };
 
       try {
         await FirebaseFirestore.instance.collection('quests').add(data);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quest berhasil diunggah!')));
-        Navigator.pop(context);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permintaan berhasil diunggah!')));
+        Navigator.pop(context); // Pop after showing snackbar and if still mounted
       } catch (e) {
         print('Error: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mengunggah quest.')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengunggah Permintaan.')));
+        }
       }
     }
   }
@@ -84,9 +99,11 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tidak dapat membuka Google Maps')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak dapat membuka Google Maps')),
+        );
+      }
     }
   }
 
@@ -96,25 +113,35 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
       future: FirebaseFirestore.instance.collection('settings').doc('hpp').get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Memuat HPP...", style: TextStyle(fontWeight: FontWeight.bold));
+          return const Text("Memuat HPP...", style: TextStyle(fontStyle: FontStyle.italic));
         }
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Text("HPP belum tersedia.", style: TextStyle(color: Colors.red));
+          return const Text("Info HPP umum tidak tersedia.", style: TextStyle(color: Colors.orange));
         }
 
         final hpp = snapshot.data!.get('value');
         return Text(
           "HPP Saat Ini: Rp ${hpp.toString()}",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green[700]),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green[700]),
         );
       },
     );
   }
 
   @override
+  void dispose() {
+    // Dispose controllers
+    _lokasiController.dispose();
+    _kontakController.dispose();
+    _hargaController.dispose();
+    _jumlahController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Upload Quest")),
+      appBar: AppBar(title: Text("Upload Permintaan")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -124,16 +151,18 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Lihat Harga HPP:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const Text("Harga Pokok Penjualan (HPP):", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   TextButton.icon(
                     onPressed: _showHppPopup,
-                    icon: Icon(Icons.visibility),
-                    label: Text("Lihat HPP"),
+                    icon: const Icon(Icons.info_outline),
+                    label: const Text("Detail HPP Barang"),
                   ),
                 ],
               ),
+              _buildHppInfo(), // Displaying the general HPP info
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: "Pilih Barang", border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: "Pilih Barang", border: OutlineInputBorder()),
                 value: selectedBarang,
                 items: barangList.map((item) {
                   return DropdownMenuItem(value: item, child: Text(item));
@@ -149,36 +178,65 @@ class _UploadQuestScreenState extends State<UploadQuestScreen> {
               TextFormField(
                 controller: _lokasiController,
                 decoration: InputDecoration(
-                  labelText: 'Link atau Nama Lokasi',
+                  labelText: 'Nama Lokasi (Contoh: Pasar Keputran)',
+                  hintText: 'atau tempel link Google Maps di sini',
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.map),
+                    icon: const Icon(Icons.map),
                     onPressed: _openGoogleMaps, // buka maps langsung!
+                    tooltip: 'Buka Google Maps untuk mencari/menyalin link',
                   ),
-
                 ),
                 validator: (value) => value!.isEmpty ? 'Masukkan lokasi atau link Google Maps' : null,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _kontakController,
-                decoration: InputDecoration(labelText: 'Kontak'),
+                decoration: const InputDecoration(labelText: 'Kontak (No. Telepon)', border: OutlineInputBorder()),
+                keyboardType: TextInputType.phone,
                 validator: (value) => value!.isEmpty ? 'Masukkan kontak' : null,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _hargaController,
-                decoration: InputDecoration(labelText: 'Harga yang Ditawarkan'),
+                decoration: const InputDecoration(labelText: 'Harga yang Ditawarkan (per kg)', prefixText: "Rp ", border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'Masukkan harga' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Masukkan harga';
+                  }
+                  final n = int.tryParse(value);
+                  if (n == null) {
+                    return 'Masukkan angka yang valid';
+                  }
+                  if (n <= 0) {
+                    return 'Harga harus lebih dari 0';
+                  }
+                  return null;
+                },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _jumlahController,
-                decoration: InputDecoration(labelText: 'Jumlah yang Dibeli'),
+                decoration: const InputDecoration(labelText: 'Jumlah yang Dibutuhkan (kg)', suffixText: "kg", border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'Masukkan jumlah' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Masukkan jumlah';
+                  }
+                  final n = int.tryParse(value);
+                  if (n == null) {
+                    return 'Masukkan angka yang valid';
+                  }
+                  if (n <= 0) {
+                    return 'Jumlah harus lebih dari 0';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _uploadQuest,
-                child: Text("Kirim Quest"),
+                child: Text("Kirim Permintaan"),
               ),
             ],
           ),

@@ -18,13 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _emailError = false;
-  bool _passwordError = false;
+  // _emailError and _passwordError are not needed as TextFormField validator handles UI errors.
   bool _formComplete = false;
-  bool _isScreenUtilInit = false;
-
-  String email = "";
-  String password = "";
+  // _isScreenUtilInit and manual ScreenUtil.init call are generally not needed if ScreenUtilInit is used at app root.
 
   bool isLoading = false;
   bool _isPasswordVisible = false;
@@ -32,7 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void login() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
-      UserModel? user = await _authService.login(email, password);
+      UserModel? user = await _authService.login(
+          _emailController.text.trim(), _passwordController.text.trim());
       setState(() => isLoading = false);
 
       if (user != null) {
@@ -58,34 +55,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _validateForm() {
     setState(() {
-      _formComplete =
-          _emailController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty;
-
-      if (_emailController.text.isNotEmpty) {
-        _emailError = false;
-      }
-      if (_passwordController.text.isNotEmpty) {
-        _passwordError = false;
-      }
+      _formComplete = _emailController.text.isNotEmpty &&
+                      _passwordController.text.isNotEmpty;
     });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isScreenUtilInit) {
-      ScreenUtil.init(context);
-      _isScreenUtilInit = true;
-    }
+  void initState() {
+    super.initState();
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
+          isLoading // Show loading indicator if isLoading is true
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFF0A3D31), // Theme color for loader
+                  ),
+                )
               : SafeArea(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -93,12 +91,31 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 40),
+                        SizedBox(height: 50.h), // Adjusted spacing
+                        // App Logo
+                        Center(
+                          child: Image.asset(
+                            'assets/images/agrarix_logo.png', // Ensure you have this asset
+                            height: 80.h,
+                          ),
+                        ),
+                        SizedBox(height: 40.h), // Adjusted spacing
+                        // Title Text
                         Text(
-                          'Enter your email and\nPassword to login',
+                          'Selamat Datang Kembali!',
                           style: TextStyle(
                             color: const Color(0xFF121926),
-                            fontSize: 20,
+                            fontSize: 24.sp, // Slightly larger title
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Masukkan email dan password untuk masuk.',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 14.sp,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
                             height: 1.40,
@@ -106,12 +123,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          'email',
+                          'Email', // Capitalized for consistency
                           style: TextStyle(
                             color: const Color(0xFF121926),
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600, // Slightly bolder label
                             height: 1.40,
                           ),
                         ),
@@ -123,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               TextFormField(
                                 controller: _emailController,
                                 decoration: InputDecoration(
-                                  hintText: 'Input your email here',
+                                  hintText: 'Masukkan email Anda',
                                   hintStyle: TextStyle(
                                     color: Colors.grey.shade400,
                                     fontSize: 14,
@@ -139,10 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     vertical: 14,
                                   ),
                                 ),
-                                onChanged: (val) {
-                                  email = val;
-                                  _validateForm();
-                                },
+                                // onChanged callback is handled by the listener in initState
 
                                 validator:
                                     (val) =>
@@ -162,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  child: Text(
+                                  child: const Text( // Added const
                                     'Forgot email?',
                                     style: TextStyle(
                                       fontSize: 14,
@@ -178,9 +192,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Password',
                                   style: TextStyle(
                                     color: const Color(0xFF121926),
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                     fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600, // Slightly bolder label
                                     height: 1.40,
                                   ),
                                 ),
@@ -190,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _passwordController,
                                 obscureText: !_isPasswordVisible,
                                 decoration: InputDecoration(
-                                  hintText: 'Input your password here',
+                                  hintText: 'Masukkan password Anda',
                                   hintStyle: TextStyle(
                                     color: Colors.grey.shade400,
                                     fontSize: 14,
@@ -220,10 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                   ),
                                 ),
-                                onChanged: (val) {
-                                  password = val;
-                                  _validateForm();
-                                },
+                                // onChanged callback is handled by the listener in initState
 
                                 validator:
                                     (val) =>
@@ -241,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  child: Text(
+                                  child: const Text( // Added const
                                     'Forgot Password?',
                                     style: TextStyle(
                                       fontSize: 14,
@@ -256,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 50,
                                 child: ElevatedButton(
                                   onPressed: login,
-                                  child: const Text("Login"),
+                                  child: Text("Masuk", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         _formComplete
@@ -278,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   Text(
                                     'Don\'t Have Account yet ? ',
-                                    style: TextStyle(
+                                    style: const TextStyle( // Added const
                                       color: const Color(0xFF0F1728),
                                       fontSize: 12,
                                       fontFamily: 'Poppins',
@@ -298,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                     child: Text(
                                       'Sign Up',
-                                      style: TextStyle(
+                                      style: const TextStyle( // Added const
                                         color: const Color(0xFF0F1728),
                                         fontSize: 12,
                                         fontFamily: 'Poppins',
